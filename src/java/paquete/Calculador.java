@@ -7,7 +7,9 @@ package paquete;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +60,67 @@ public class Calculador extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        //processRequest(request, response);
+        
+        /*String CONTENT_TYPE = "text/html";
+        response.setContentType(CONTENT_TYPE);
+        javax.servlet.ServletOutputStream s = response.getOutputStream();
+        s.print("<p>hola mundo</p>");
+        s.close();*/
+        
+        
+        String CONTENT_TYPE = "text/html";
+        String Encabezado = "";
+        String login, password;
+        response.setContentType(CONTENT_TYPE);
+        ServletOutputStream out = response.getOutputStream();
+        Integer AccesosInt = new Integer(0);
+        login = request.getParameter("login");
+        if (login == null) {
+        login = ""; }
+        password = request.getParameter("password");
+        if (password == null) {
+        password = ""; }
+        // recuperar la sesión
+        javax.servlet.http.HttpSession sesion = request.getSession(true);
+        if (sesion.isNew()) { // la sesión es nueva
+        Encabezado = "Bienvenido"; }
+        else {
+        Encabezado = "Has vuelto";
+        Integer AccesosViejo = (Integer) sesion.getAttribute("Accesos");
+        if (AccesosViejo != null) {
+        AccesosInt = new Integer(AccesosViejo.intValue() + 1); }
+        }
+        sesion.setAttribute("Accesos", AccesosInt);
+        out.println("<html>");
+        out.println("<head>");
+        out.println("<title>SESIONES");
+        out.println("</title>");
+        out.println("<BODY BGCOLOR=\"#FDF5E6\">");
+        out.println("<H1 ALIGN=\"CENTER\">" + Encabezado + "</H1>");
+        out.println("<H2>Informacion de Sesion:</H2>");
+        out.println("<TABLE BORDER=1 ALIGN=CENTER>");
+        out.println("<TR BGCOLOR=\"#FFAD00\">");
+        out.println("<TH>Tipo <TH>Valor");
+        out.println("<TR><TD>ID");
+        out.println("<TD>" + sesion.getId());
+        out.println("<TR><TD>Tiempo de creacion");
+        out.println("<TD>" + new Date(sesion.getCreationTime()));
+        out.println("<TR><TD>Tiempo de acceso");
+        out.println("<TD>" + new Date(sesion.getLastAccessedTime()));
+        out.println("<TR><TD>Numero de accesos previos");
+        out.println("<TD>" + (Integer) sesion.getAttribute("Accesos"));
+        out.println("<TR><TD>Login");
+        String Login = request.getParameter("login");
+        sesion.setAttribute("Login", Login);
+        out.println("<TD>" + Login);
+        out.println("<TR><TD>Password");
+        String Password = request.getParameter("password");
+        sesion.setAttribute("Password", Password);
+        out.println("<TD>" + Password);
+        out.println("</TABLE>");
+        out.println("</BODY></HTML>");
+        out.close();
     }
 
     /**
